@@ -1,0 +1,3 @@
+[submodule "components/idris"]
+	path = components/idris
+	url = git@github.com:aktowns/Idris-dev.git
