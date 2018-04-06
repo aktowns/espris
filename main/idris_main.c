@@ -17,7 +17,6 @@ static const char *TAG = "idris-entry";
 RTSOpts opts = {
     .init_heap_size = 128,
     .max_stack_size = 128,
-    .show_summary   = 0
 };
 
 void app_main()
@@ -25,11 +24,23 @@ void app_main()
     ESP_LOGI(TAG, "booting esp");
 
     VM* vm = init_vm(opts.max_stack_size, opts.init_heap_size, 1);
+
+    init_threadkeys();
+    init_threaddata(vm);
+    init_gmpalloc();
+
+    init_nullaries();
+    init_signals();
+
     _idris__123_runMain_95_0_125_(vm, NULL);
 
 #ifdef IDRIS_DEBUG
-    if (opts.show_summary) {
-        idris_gcInfo(vm, 1);
-    }
+     idris_gcInfo(vm, 1);
 #endif
+
+    Stats stats = terminate(vm);
+
+    print_stats(&stats);
+
+    for (;;) {}
 }
