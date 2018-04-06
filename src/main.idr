@@ -1,15 +1,24 @@
 module Main
 
---data PinState = HI | LO
---data PinMode = INPUT | OUTPUT PinState
---data Pin = Pin Num PinMode
+import GPIO
 
--- pinWrite : Pin (n : Nat) (OUTPUT LO)
--- pinRead  : Pin (n : Nat) INPUT
--- pinMode  : (m : PinState) -> Pin (n : Nat) PinMode (OUTPUT (not m)) -> Pin n (OUTPUT m)
+tick_peroid_ms : IO Int
+tick_peroid_ms = foreign FFI_C "#portTICK_PERIOD_MS" (IO Int)
 
-do_pin_mode : Int -> Int -> IO ()
-do_pin_mode pin mode = foreign FFI_C "pin_mode" (Int -> Int -> IO ()) pin mode
+task_delay : Int -> IO ()
+task_delay delay = foreign FFI_C "vTaskDelay" (Int -> IO ()) delay
 
-main : IO () 
-main = putStrLn "hello"
+toggle_led : IO ()
+toggle_led = do 
+  GPIO.setLevel GPIO.pin2 GPIO.Low
+  task_delay 100
+  GPIO.setLevel GPIO.pin2 GPIO.High
+  toggle_led
+
+main : IO ()
+main = do
+  putStrLn "hello"
+  GPIO.padSelect GPIO.pin2
+  GPIO.setDirection GPIO.pin2 GPIO.ModeOutput
+  toggle_led 
+
